@@ -22,6 +22,7 @@ CFLAGS := -g -pipe -O2 -Wall \
 MKNFA_BIN := compress
 MKNFA_LIBS := 
 MKNFA_OBJ = compress.o \
+		hexdump.o \
 		os.o
 
 ALL_BIN := $(MKNFA_BIN)

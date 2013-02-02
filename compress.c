@@ -8,6 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <ctype.h>
 
 #include <bmo.h>
 #include <os.h>
@@ -118,6 +119,9 @@ again:
 #endif
 		obuf[i] = buf[(bwt[i] + sz - 1) % sz];
 	}
+
+	hex_dump(buf, sz, 0);
+	hex_dump(obuf, sz, 0);
 
 	return 1;
 }
