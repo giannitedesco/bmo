@@ -15,4 +15,6 @@ typedef uint16_t bwt_t;
 void hex_dumpf(FILE *f, const uint8_t *tmp, size_t len, size_t llen);
 void hex_dump(const uint8_t *ptr, size_t len, size_t llen);
 
+void bwt_encode(uint8_t *buf, size_t len);
+
 #endif /* _BMO_H */
