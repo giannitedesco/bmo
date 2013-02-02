@@ -24,12 +24,14 @@ COMPRESS_LIBS :=
 COMPRESS_OBJ = compress.o \
 		hexdump.o \
 		bwte.o \
+		mtfe.o \
 		os.o
 
 DECOMPRESS_BIN := decompress
 DECOMPRESS_LIBS := 
 DECOMPRESS_OBJ = decompress.o \
 		hexdump.o \
+		mtfd.o \
 		bwtd.o \
 		os.o
 

@@ -19,9 +19,6 @@ void bwt_decode(uint8_t *buf, size_t len, bwt_t idx)
 	bwt_t t[len], k;
 	size_t i, j, ti;
 
-	printf("L =\n");
-	hex_dump(buf, len, 0);
-
 	assert(idx < len);
 
 	/* build T, then decode */
@@ -37,5 +34,5 @@ void bwt_decode(uint8_t *buf, size_t len, bwt_t idx)
 	for(k = t[idx], j = 0; j < len; j++, k = t[k]) {
 		d[j] = buf[k];
 	}
-	hex_dump(d, len, 0);
+	memcpy(buf, d, len);
 }

@@ -48,6 +48,8 @@ again:
 	bwt_encode(buf, sz, &idx);
 	fprintf(stderr, "Rotation %u\n", idx);
 	hex_dumpf(stderr, buf, sz, 0);
+	mtf_encode(buf, sz);
+	hex_dumpf(stderr, buf, sz, 0);
 
 	if ( !fd_write(outfd, &idx, sizeof(idx))) {
 		fprintf(stderr, "%s: write: %s\n", cmd, os_err());

@@ -50,12 +50,20 @@ again:
 		return 0;
 	}
 
-	printf("read %zu bytes\n", sz);
+	fprintf(stderr, "read %zu bytes\n", sz);
 
 	if ( !eof )
 		goto again;
 
+	fprintf(stderr, "L =\n");
+	hex_dumpf(stderr, buf, sz, 0);
+	mtf_decode(buf, sz);
+	hex_dumpf(stderr, buf, sz, 0);
 	bwt_decode(buf, sz, idx);
+	hex_dumpf(stderr, buf, sz, 0);
+
+	if ( !fd_write(outfd, buf, sz) )
+		return 0;
 	return 1;
 }
 
