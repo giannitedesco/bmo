@@ -68,7 +68,7 @@ static void heapify(uint8_t *buf, bwt_t *bwt, bwt_t num)
 		sift_down(buf, num, bwt, i, num - 1);
 }
 
-void bwt_encode(uint8_t *buf, size_t len)
+void bwt_encode(uint8_t *buf, size_t len, bwt_t *idx)
 {
 	uint8_t obuf[len];
 	bwt_t bwt[len];
@@ -95,6 +95,8 @@ void bwt_encode(uint8_t *buf, size_t len)
 			buf[bwt[i]], buf[(bwt[i] + len - 1)%len]);
 #endif
 		obuf[i] = buf[(bwt[i] + len - 1) % len];
+		if ( !bwt[i] )
+			*idx = i;
 	}
 
 	memcpy(buf, obuf, len);

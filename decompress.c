@@ -12,7 +12,7 @@
 #include <bmo.h>
 #include <os.h>
 
-const char *cmd = "compress";
+const char *cmd = "decompress";
 
 static int usage(int code)
 {
@@ -25,39 +25,37 @@ static int usage(int code)
 	return code;
 }
 
-static int compress(int infd, int outfd)
+static int decompress(int infd, int outfd)
 {
 	uint8_t buf[BMO_BLOCK_SIZE];
-	bwt_t idx;
 	size_t sz;
+	bwt_t idx;
 	int eof;
 
 again:
+	sz = sizeof(idx);
+	if ( !fd_read(infd, &idx, &sz, &eof) ) {
+		fprintf(stderr, "%s: read: %s\n", cmd, os_err());
+		return 0;
+	}
+
+	if ( eof ) {
+		fprintf(stderr, "%s: desync on bwt read\n", cmd);
+		return 1;
+	}
+
 	sz = sizeof(buf);
 	if ( !fd_read(infd, buf, &sz, &eof) ) {
 		fprintf(stderr, "%s: read: %s\n", cmd, os_err());
 		return 0;
 	}
 
-	fprintf(stderr, "read %zu bytes\n", sz);
+	printf("read %zu bytes\n", sz);
 
 	if ( !eof )
 		goto again;
 
-	hex_dumpf(stderr, buf, sz, 0);
-	bwt_encode(buf, sz, &idx);
-	fprintf(stderr, "Rotation %u\n", idx);
-	hex_dumpf(stderr, buf, sz, 0);
-
-	if ( !fd_write(outfd, &idx, sizeof(idx))) {
-		fprintf(stderr, "%s: write: %s\n", cmd, os_err());
-		return 0;
-	}
-
-	if ( !fd_write(outfd, buf, sz)) {
-		fprintf(stderr, "%s: write: %s\n", cmd, os_err());
-		return 0;
-	}
+	bwt_decode(buf, sz, idx);
 	return 1;
 }
 
@@ -66,7 +64,7 @@ int main(int argc, char **argv)
 	if ( argc > 0 )
 		cmd = argv[0];
 
-	if ( !compress(STDIN_FILENO, STDOUT_FILENO) )
+	if ( !decompress(STDIN_FILENO, STDOUT_FILENO) )
 		return usage(EXIT_FAILURE);
 
 	return EXIT_SUCCESS;

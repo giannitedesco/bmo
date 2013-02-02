@@ -19,15 +19,22 @@ CFLAGS := -g -pipe -O2 -Wall \
 	-Iinclude \
 	$(EXTRA_DEFS) 
 
-MKNFA_BIN := compress
-MKNFA_LIBS := 
-MKNFA_OBJ = compress.o \
+COMPRESS_BIN := compress
+COMPRESS_LIBS := 
+COMPRESS_OBJ = compress.o \
 		hexdump.o \
 		bwte.o \
 		os.o
 
-ALL_BIN := $(MKNFA_BIN)
-ALL_OBJ := $(MKNFA_OBJ)
+DECOMPRESS_BIN := decompress
+DECOMPRESS_LIBS := 
+DECOMPRESS_OBJ = decompress.o \
+		hexdump.o \
+		bwtd.o \
+		os.o
+
+ALL_BIN := $(COMPRESS_BIN) $(DECOMPRESS_BIN)
+ALL_OBJ := $(COMPRESS_OBJ) $(DECOMPRESS_OBJ)
 ALL_DEP := $(patsubst %.o, .%.d, $(ALL_OBJ))
 ALL_TARGETS := $(ALL_BIN)
 
@@ -49,9 +56,13 @@ endif
 		-MT $(patsubst .%.d, %.o, $@) \
 		-c -o $(patsubst .%.d, %.o, $@) $<
 
-$(MKNFA_BIN): $(MKNFA_OBJ)
+$(COMPRESS_BIN): $(COMPRESS_OBJ)
 	@echo " [LINK] $@"
-	@$(CC) $(CFLAGS) -o $@ $(MKNFA_OBJ) $(MKNFA_LIBS)
+	@$(CC) $(CFLAGS) -o $@ $(COMPRESS_OBJ) $(COMPRESS_LIBS)
+
+$(DECOMPRESS_BIN): $(DECOMPRESS_OBJ)
+	@echo " [LINK] $@"
+	@$(CC) $(CFLAGS) -o $@ $(DECOMPRESS_OBJ) $(DECOMPRESS_LIBS)
 
 clean:
 	rm -f $(ALL_TARGETS) $(ALL_OBJ) $(ALL_DEP)
