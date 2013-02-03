@@ -26,7 +26,6 @@ COMPRESS_OBJ = compress.o \
 		bwte.o \
 		mtfe.o \
 		omegae.o \
-		fobuf.o \
 		os.o
 
 DECOMPRESS_BIN := decompress
