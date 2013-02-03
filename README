@@ -1,0 +1,15 @@
+bmo - BWT, MTF, Elias Omega Code compressor/decompressor
+Copyright (c) 2013 Gianni Tedesco
+
+0. INTRODUCTION
+Simple compression scheme comprising of:
+ 1. Burrows Wheeler Transform
+ 2. Move to Front encoding
+ 3. Elias Omega coding
+
+1. BUILDING
+ $ make
+
+2. RUNNING
+ $ ./compress < in > out
+ $ ./decompress < in > out
