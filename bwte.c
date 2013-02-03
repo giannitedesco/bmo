@@ -11,7 +11,6 @@
 #include <assert.h>
 
 #include <bmo.h>
-#include <os.h>
 
 static int bwtcmp(uint8_t *buf, size_t len, bwt_t a, bwt_t b)
 {

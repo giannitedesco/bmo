@@ -11,7 +11,6 @@
 #include <assert.h>
 
 #include <bmo.h>
-#include <os.h>
 
 void bwt_decode(uint8_t *buf, size_t len, bwt_t idx)
 {

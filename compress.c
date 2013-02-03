@@ -45,10 +45,17 @@ again:
 		goto again;
 
 	hex_dumpf(stderr, buf, sz, 0);
+
 	bwt_encode(buf, sz, &idx);
-	fprintf(stderr, "Rotation %u\n", idx);
+	fprintf(stderr, "BWT: rotation %u\n", idx);
 	hex_dumpf(stderr, buf, sz, 0);
+
 	mtf_encode(buf, sz);
+	fprintf(stderr, "MTF encoded:\n");
+	hex_dumpf(stderr, buf, sz, 0);
+
+	omega_encode(buf, &sz);
+	fprintf(stderr, "Omega encoded %zu bytes:\n", sz);
 	hex_dumpf(stderr, buf, sz, 0);
 
 	if ( !fd_write(outfd, &idx, sizeof(idx))) {

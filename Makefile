@@ -25,18 +25,26 @@ COMPRESS_OBJ = compress.o \
 		hexdump.o \
 		bwte.o \
 		mtfe.o \
+		omegae.o \
+		fobuf.o \
 		os.o
 
 DECOMPRESS_BIN := decompress
 DECOMPRESS_LIBS := 
 DECOMPRESS_OBJ = decompress.o \
 		hexdump.o \
+		omegad.o \
 		mtfd.o \
 		bwtd.o \
 		os.o
 
-ALL_BIN := $(COMPRESS_BIN) $(DECOMPRESS_BIN)
-ALL_OBJ := $(COMPRESS_OBJ) $(DECOMPRESS_OBJ)
+BITTEST_BIN := bittest
+BITTESET_LIBS :=
+BITTEST_OBJ := bittest.o \
+		hexdump.o
+
+ALL_BIN := $(COMPRESS_BIN) $(DECOMPRESS_BIN) $(BITTEST_BIN)
+ALL_OBJ := $(COMPRESS_OBJ) $(DECOMPRESS_OBJ) $(BITTEST_OBJ)
 ALL_DEP := $(patsubst %.o, .%.d, $(ALL_OBJ))
 ALL_TARGETS := $(ALL_BIN)
 
@@ -65,6 +73,10 @@ $(COMPRESS_BIN): $(COMPRESS_OBJ)
 $(DECOMPRESS_BIN): $(DECOMPRESS_OBJ)
 	@echo " [LINK] $@"
 	@$(CC) $(CFLAGS) -o $@ $(DECOMPRESS_OBJ) $(DECOMPRESS_LIBS)
+
+$(BITTEST_BIN): $(BITTEST_OBJ)
+	@echo " [LINK] $@"
+	@$(CC) $(CFLAGS) -o $@ $(BITTEST_OBJ) $(BITTEST_LIBS)
 
 clean:
 	rm -f $(ALL_TARGETS) $(ALL_OBJ) $(ALL_DEP)

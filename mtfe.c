@@ -11,8 +11,6 @@
 #include <assert.h>
 
 #include <bmo.h>
-#include <os.h>
-
 
 static void mtf(uint8_t *tbl, uint8_t c)
 {

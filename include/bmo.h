@@ -21,4 +21,7 @@ void bwt_decode(uint8_t *buf, size_t len, bwt_t idx);
 void mtf_encode(uint8_t *buf, size_t len);
 void mtf_decode(uint8_t *buf, size_t len);
 
+int omega_encode(uint8_t *buf, size_t *len);
+void omega_decode(uint8_t *buf, size_t *len);
+
 #endif /* _BMO_H */

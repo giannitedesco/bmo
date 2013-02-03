@@ -55,11 +55,18 @@ again:
 	if ( !eof )
 		goto again;
 
-	fprintf(stderr, "L =\n");
 	hex_dumpf(stderr, buf, sz, 0);
+
+	omega_decode(buf, &sz);
+	fprintf(stderr, "omega decode:\n");
+	hex_dumpf(stderr, buf, sz, 0);
+
 	mtf_decode(buf, sz);
+	fprintf(stderr, "MTF decode:\n");
 	hex_dumpf(stderr, buf, sz, 0);
+
 	bwt_decode(buf, sz, idx);
+	fprintf(stderr, "BWT decode:\n");
 	hex_dumpf(stderr, buf, sz, 0);
 
 	if ( !fd_write(outfd, buf, sz) )
