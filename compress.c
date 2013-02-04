@@ -49,6 +49,9 @@ again:
 		return 0;
 	}
 
+	if ( !sz )
+		goto done;
+
 	h.h_len += sz;
 
 //	fprintf(stderr, "read %zu bytes\n", sz);
@@ -80,6 +83,7 @@ again:
 	if ( !eof )
 		goto again;
 
+done:
 	if ( !fobuf_flush(out) )
 		return 0;
 
