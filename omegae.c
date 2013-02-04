@@ -13,7 +13,7 @@
 #include <bmo.h>
 #include <bitwriter.h>
 
-int omega_encode(uint8_t *buf, size_t *len)
+int omega_encode(uint8_t *buf, size_t *len, int *compressed)
 {
 	struct bitwriter wr;
 	uint8_t out[(*len + 7) & ~0x7U];
@@ -22,9 +22,11 @@ int omega_encode(uint8_t *buf, size_t *len)
 	bitwriter_init(&wr, out, sizeof(out));
 
 	for(i = 0; i < *len; i++) {
-		unsigned int num = buf[i] + 1;
+		unsigned int num = (unsigned)buf[i] + 1;
 		unsigned int bcnt = 0;
 		bitsw_t stk = 0;
+
+		assert(num);
 
 		while(num > 1) {
 			unsigned int l, j, tmp;
@@ -50,11 +52,13 @@ int omega_encode(uint8_t *buf, size_t *len)
 	}
 	olen = bitwriter_fini(&wr);
 
-//	if ( olen < *len ) {
+	if ( olen < *len ) {
 		memcpy(buf, out, *len);
 		*len = olen;
+		*compressed = 1;
 		return 1;
-//	}
+	}
 
+	*compressed = 0;
 	return 0;
 }

@@ -14,6 +14,14 @@
 #include <bmo-format.h>
 #include <os.h>
 
+#if 0
+#define dprintf(...) fprintf(stderr, __VA_ARGS__)
+#define dhex_dump(...) dhex_dump(__VA_ARGS)
+#else
+#define dprintf(x...) do { } while(0);
+#define dhex_dump(x...) do { } while(0);
+#endif
+
 const char *cmd = "compress";
 
 static int usage(int code)
@@ -30,7 +38,10 @@ static int usage(int code)
 static int compress(int infd, fobuf_t out)
 {
 	uint8_t buf[BMO_BLOCK_SIZE];
+	uint8_t orig[BMO_BLOCK_SIZE];
+	uint8_t *ptr;
 	struct bmo_hdr h;
+	int compressed;
 	size_t sz;
 	bwt_t idx;
 	int eof;
@@ -44,8 +55,8 @@ static int compress(int infd, fobuf_t out)
 
 again:
 	sz = sizeof(buf);
-	if ( !fd_read(infd, buf, &sz, &eof) ) {
-		fprintf(stderr, "%s: read: %s\n", cmd, os_err());
+	if ( !fd_read(infd, orig, &sz, &eof) ) {
+		dprintf("%s: read: %s\n", cmd, os_err());
 		return 0;
 	}
 
@@ -54,29 +65,38 @@ again:
 
 	h.h_len += sz;
 
-//	fprintf(stderr, "read %zu bytes\n", sz);
+	dprintf("read %zu bytes\n", sz);
 
-//	hex_dumpf(stderr, buf, sz, 0);
+	dhex_dump(orig, sz, 0);
+	memcpy(buf, orig, sizeof(buf));
 
 	bwt_encode(buf, sz, &idx);
-//	fprintf(stderr, "BWT: rotation %u\n", idx);
-//	hex_dumpf(stderr, buf, sz, 0);
+	dprintf("BWT: rotation %u\n", idx);
+	dhex_dump(buf, sz, 0);
 
 	mtf_encode(buf, sz);
-//	fprintf(stderr, "MTF encoded:\n");
-//	hex_dumpf(stderr, buf, sz, 0);
+	dprintf("MTF encoded:\n");
+	dhex_dump(buf, sz, 0);
 
-	omega_encode(buf, &sz);
-//	fprintf(stderr, "Omega encoded %zu bytes:\n", sz);
-//	hex_dumpf(stderr, buf, sz, 0);
+	omega_encode(buf, &sz, &compressed);
+	if ( compressed ) {
+		dprintf("Omega encoded %zu bytes:\n", sz);
+		dhex_dump(buf, sz, 0);
+		idx |= BMO_BLOCK_COMPRESSED;
+		ptr = buf;
+	}else{
+		dprintf("compress failed:\n");
+		dhex_dump(orig, sz, 0);
+		ptr = orig;
+	}
 
 	if ( !fobuf_write(out, &idx, sizeof(idx))) {
-		fprintf(stderr, "%s: write: %s\n", cmd, os_err());
+		dprintf("%s: write: %s\n", cmd, os_err());
 		return 0;
 	}
 
-	if ( !fobuf_write(out, buf, sz)) {
-		fprintf(stderr, "%s: write: %s\n", cmd, os_err());
+	if ( !fobuf_write(out, ptr, sz)) {
+		dprintf("%s: write: %s\n", cmd, os_err());
 		return 0;
 	}
 
@@ -90,7 +110,7 @@ done:
 	if ( !fd_pwrite(fobuf_fd(out), 0, &h, sizeof(h)) )
 		return 0;
 
-	fprintf(stderr, "uncompressed len = %"PRId64"\n", h.h_len);
+	dprintf("uncompressed len = %"PRId64"\n", h.h_len);
 	return 1;
 }
 

@@ -7,7 +7,7 @@
 #define _BMO_FORMAT_H
 
 #define BMO_MAGIC		(('O' << 24)|('M'<<16)|('B'<<8))
-#define BMO_CURRENT_VERS	0
+#define BMO_CURRENT_VERS	1
 
 struct bmo_hdr {
 	uint32_t h_vers;

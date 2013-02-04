@@ -39,6 +39,8 @@ void omega_decode(fibuf_t in, uint8_t *out, size_t len)
 		}
 //		fprintf(stderr, " = 0x%.2x / 0x%.2x\n", num, num - 1);
 		num -= 1;
+		if ( num >= 0x100 )
+			fprintf(stderr, "%u\n", num);
 		assert(num < 0x100);
 		out[o] = num;
 	}
