@@ -7,6 +7,8 @@
 #define _BMO_H
 
 #include <compiler.h>
+#include <fobuf.h>
+#include <fibuf.h>
 
 #define BMO_BLOCK_SIZE	(1 << 13)
 
@@ -22,6 +24,6 @@ void mtf_encode(uint8_t *buf, size_t len);
 void mtf_decode(uint8_t *buf, size_t len);
 
 int omega_encode(uint8_t *buf, size_t *len);
-void omega_decode(uint8_t *buf, size_t *len);
+void omega_decode(fibuf_t in, uint8_t *out, size_t len);
 
 #endif /* _BMO_H */

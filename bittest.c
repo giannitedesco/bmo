@@ -16,6 +16,7 @@
 
 int main(int argc, char **argv)
 {
+#if 0
 	struct bitwriter w;
 	struct bitreader r;
 	unsigned int i;
@@ -35,6 +36,6 @@ int main(int argc, char **argv)
 		printf("%lu = %u\n", val, i % 2);
 	//	assert(val == (i % 2));
 	}
-
+#endif
 	return EXIT_SUCCESS;
 }

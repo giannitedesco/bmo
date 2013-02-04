@@ -23,6 +23,7 @@ COMPRESS_BIN := compress
 COMPRESS_LIBS := 
 COMPRESS_OBJ = compress.o \
 		hexdump.o \
+		fobuf.o \
 		bwte.o \
 		mtfe.o \
 		omegae.o \
@@ -32,6 +33,7 @@ DECOMPRESS_BIN := decompress
 DECOMPRESS_LIBS := 
 DECOMPRESS_OBJ = decompress.o \
 		hexdump.o \
+		fibuf.o \
 		omegad.o \
 		mtfd.o \
 		bwtd.o \

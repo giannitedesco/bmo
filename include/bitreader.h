@@ -12,34 +12,30 @@
 typedef BR_TYPE_EXPAND(BITREADER_WIDTH) bitsr_t;
 
 struct bitreader {
-	const uint8_t *in, *cur, *end;
+	fibuf_t in;
 	unsigned int nbits;
 	bitsr_t word;
 };
 
 static inline int bitreader_slurp(struct bitreader *r)
 {
-	if ( r->cur >= r->end )
+	size_t sz = sizeof(r->word);
+	if ( !fibuf_read(r->in, &r->word, &sz) || sz != sizeof(r->word) )
 		return 0;
-	r->word = *(bitsr_t *)r->cur;
-	r->cur += sizeof(bitsr_t);
 	r->nbits = BITREADER_WIDTH;
 	return 1;
 }
 
-static inline void bitreader_init(struct bitreader *r,
-					uint8_t *ptr,
-					size_t len)
+static inline void bitreader_init(struct bitreader *r, fibuf_t in)
 {
-	r->cur = r->in = ptr;
-	r->end = ptr + len;
+	r->in = in;
 	r->nbits = 0;
 	r->word = 0;
 }
 
 static inline int bitreader_finished(struct bitreader *r)
 {
-	if ( r->cur < r->end || r->nbits )
+	if ( !fibuf_eof(r->in) || r->nbits )
 		return 0;
 	return 1;
 }

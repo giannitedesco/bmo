@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include <bmo.h>
+#include <bmo-format.h>
 #include <os.h>
 
 const char *cmd = "decompress";
@@ -25,39 +26,49 @@ static int usage(int code)
 	return code;
 }
 
-static int decompress(int infd, int outfd)
+static int decompress(fibuf_t in, int outfd)
 {
 	uint8_t buf[BMO_BLOCK_SIZE];
+	struct bmo_hdr h;
 	size_t sz;
 	bwt_t idx;
-	int eof;
 
-again:
-	sz = sizeof(idx);
-	if ( !fd_read(infd, &idx, &sz, &eof) ) {
+
+	sz = sizeof(h);
+	if ( !fibuf_read(in, &h, &sz) ) {
 		fprintf(stderr, "%s: read: %s\n", cmd, os_err());
 		return 0;
 	}
 
-	if ( eof ) {
+	if ( fibuf_eof(in) || sz < sizeof(h) ) {
+		fprintf(stderr, "%s: desync on hdr read\n", cmd);
+		return 1;
+	}
+
+	if ( h.h_magic != BMO_MAGIC ) {
+		fprintf(stderr, "%s: bad magic\n", cmd);
+		return 1;
+	}
+	if ( h.h_vers != BMO_CURRENT_VERS ) {
+		fprintf(stderr, "%s: wrong version\n", cmd);
+		return 1;
+	}
+again:
+	sz = sizeof(idx);
+	if ( !fibuf_read(in, &idx, &sz) ) {
+		fprintf(stderr, "%s: read: %s\n", cmd, os_err());
+		return 0;
+	}
+
+	if ( fibuf_eof(in) || sz < sizeof(idx) ) {
 		fprintf(stderr, "%s: desync on bwt read\n", cmd);
 		return 1;
 	}
 
-	sz = sizeof(buf);
-	if ( !fd_read(infd, buf, &sz, &eof) ) {
-		fprintf(stderr, "%s: read: %s\n", cmd, os_err());
-		return 0;
-	}
+	sz = (h.h_len < BMO_BLOCK_SIZE) ? h.h_len : BMO_BLOCK_SIZE;
+	h.h_len -= sz;
 
-	fprintf(stderr, "read %zu bytes\n", sz);
-
-	if ( !eof )
-		goto again;
-
-	hex_dumpf(stderr, buf, sz, 0);
-
-	omega_decode(buf, &sz);
+	omega_decode(in, buf, sz);
 	fprintf(stderr, "omega decode:\n");
 	hex_dumpf(stderr, buf, sz, 0);
 
@@ -71,15 +82,25 @@ again:
 
 	if ( !fd_write(outfd, buf, sz) )
 		return 0;
+
+	if ( !fibuf_eof(in) )
+		goto again;
+
 	return 1;
 }
 
 int main(int argc, char **argv)
 {
+	fibuf_t in;
+
 	if ( argc > 0 )
 		cmd = argv[0];
 
-	if ( !decompress(STDIN_FILENO, STDOUT_FILENO) )
+	in = fibuf_new(STDIN_FILENO, 0);
+	if ( NULL == in )
+		return EXIT_FAILURE;
+
+	if ( !decompress(in, STDOUT_FILENO) )
 		return usage(EXIT_FAILURE);
 
 	return EXIT_SUCCESS;

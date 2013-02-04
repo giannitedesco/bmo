@@ -8,8 +8,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 #include <bmo.h>
+#include <bmo-format.h>
 #include <os.h>
 
 const char *cmd = "compress";
@@ -25,12 +27,20 @@ static int usage(int code)
 	return code;
 }
 
-static int compress(int infd, int outfd)
+static int compress(int infd, fobuf_t out)
 {
 	uint8_t buf[BMO_BLOCK_SIZE];
-	bwt_t idx;
+	struct bmo_hdr h;
 	size_t sz;
+	bwt_t idx;
 	int eof;
+
+	h.h_vers = BMO_CURRENT_VERS;
+	h.h_magic = BMO_MAGIC;
+	h.h_len = 0;
+
+	if ( !fobuf_write(out, &h, sizeof(h)) )
+		return 0;
 
 again:
 	sz = sizeof(buf);
@@ -38,6 +48,8 @@ again:
 		fprintf(stderr, "%s: read: %s\n", cmd, os_err());
 		return 0;
 	}
+
+	h.h_len += sz;
 
 	fprintf(stderr, "read %zu bytes\n", sz);
 
@@ -58,25 +70,41 @@ again:
 	fprintf(stderr, "Omega encoded %zu bytes:\n", sz);
 	hex_dumpf(stderr, buf, sz, 0);
 
-	if ( !fd_write(outfd, &idx, sizeof(idx))) {
+	if ( !fobuf_write(out, &idx, sizeof(idx))) {
 		fprintf(stderr, "%s: write: %s\n", cmd, os_err());
 		return 0;
 	}
 
-	if ( !fd_write(outfd, buf, sz)) {
+	if ( !fobuf_write(out, buf, sz)) {
 		fprintf(stderr, "%s: write: %s\n", cmd, os_err());
 		return 0;
 	}
+
+	if ( !fobuf_flush(out) )
+		return 0;
+
+	if ( !fd_pwrite(fobuf_fd(out), 0, &h, sizeof(h)) )
+		return 0;
+
+	fprintf(stderr, "uncompressed len = %"PRId64"\n", h.h_len);
 	return 1;
 }
 
 int main(int argc, char **argv)
 {
+	fobuf_t out;
+
 	if ( argc > 0 )
 		cmd = argv[0];
 
-	if ( !compress(STDIN_FILENO, STDOUT_FILENO) )
+	out = fobuf_new(STDOUT_FILENO, 0);
+	if ( NULL == out )
+		return 0;
+
+	if ( !compress(STDIN_FILENO, out) )
 		return usage(EXIT_FAILURE);
 
+	if ( !fobuf_close(out) )
+		return EXIT_FAILURE;
 	return EXIT_SUCCESS;
 }

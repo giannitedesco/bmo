@@ -13,14 +13,13 @@
 #include <bmo.h>
 #include <bitreader.h>
 
-void omega_decode(uint8_t *buf, size_t *len)
+void omega_decode(fibuf_t in, uint8_t *out, size_t len)
 {
-	uint8_t out[BMO_BLOCK_SIZE];
 	struct bitreader r;
 	size_t o;
 
-	bitreader_init(&r, buf, *len);
-	for(o = 0; !bitreader_finished(&r); o++) {
+	bitreader_init(&r, in);
+	for(o = 0; !bitreader_finished(&r) && o < len; o++) {
 		unsigned num = 1;
 		bitsr_t val;
 		while ( bitreader_read(&r, &val, 1) ) {
@@ -42,11 +41,5 @@ void omega_decode(uint8_t *buf, size_t *len)
 		num -= 1;
 		assert(num < 0x100);
 		out[o] = num;
-
-		if ( (o + 1) > 1536 )
-			break;
 	}
-
-	memcpy(buf, out, o);
-	*len = o;
 }
