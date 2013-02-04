@@ -140,10 +140,12 @@ int fobuf_close(fobuf_t b)
 	/* don't error if the output file is a special file
 	 * which does not support fsync (eg: a pipe)
 	 */
+#if 0
 	if ( fsync(b->fd) && errno != EROFS && errno != EINVAL ) {
 		//ERR("fsync: %s", os_err());
 		ret = 0;
 	}
+#endif
 
 	if ( !close(b->fd) ) {
 		//ERR("fsync: %s", os_err());

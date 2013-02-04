@@ -69,16 +69,16 @@ again:
 	h.h_len -= sz;
 
 	omega_decode(in, buf, sz);
-	fprintf(stderr, "omega decode:\n");
-	hex_dumpf(stderr, buf, sz, 0);
+//	fprintf(stderr, "omega decode:\n");
+//	hex_dumpf(stderr, buf, sz, 0);
 
 	mtf_decode(buf, sz);
-	fprintf(stderr, "MTF decode:\n");
-	hex_dumpf(stderr, buf, sz, 0);
+//	fprintf(stderr, "MTF decode:\n");
+//	hex_dumpf(stderr, buf, sz, 0);
 
 	bwt_decode(buf, sz, idx);
-	fprintf(stderr, "BWT decode:\n");
-	hex_dumpf(stderr, buf, sz, 0);
+//	fprintf(stderr, "BWT decode:\n");
+//	hex_dumpf(stderr, buf, sz, 0);
 
 	if ( !fd_write(outfd, buf, sz) )
 		return 0;

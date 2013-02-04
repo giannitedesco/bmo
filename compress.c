@@ -51,24 +51,21 @@ again:
 
 	h.h_len += sz;
 
-	fprintf(stderr, "read %zu bytes\n", sz);
+//	fprintf(stderr, "read %zu bytes\n", sz);
 
-	if ( !eof )
-		goto again;
-
-	hex_dumpf(stderr, buf, sz, 0);
+//	hex_dumpf(stderr, buf, sz, 0);
 
 	bwt_encode(buf, sz, &idx);
-	fprintf(stderr, "BWT: rotation %u\n", idx);
-	hex_dumpf(stderr, buf, sz, 0);
+//	fprintf(stderr, "BWT: rotation %u\n", idx);
+//	hex_dumpf(stderr, buf, sz, 0);
 
 	mtf_encode(buf, sz);
-	fprintf(stderr, "MTF encoded:\n");
-	hex_dumpf(stderr, buf, sz, 0);
+//	fprintf(stderr, "MTF encoded:\n");
+//	hex_dumpf(stderr, buf, sz, 0);
 
 	omega_encode(buf, &sz);
-	fprintf(stderr, "Omega encoded %zu bytes:\n", sz);
-	hex_dumpf(stderr, buf, sz, 0);
+//	fprintf(stderr, "Omega encoded %zu bytes:\n", sz);
+//	hex_dumpf(stderr, buf, sz, 0);
 
 	if ( !fobuf_write(out, &idx, sizeof(idx))) {
 		fprintf(stderr, "%s: write: %s\n", cmd, os_err());
@@ -79,6 +76,9 @@ again:
 		fprintf(stderr, "%s: write: %s\n", cmd, os_err());
 		return 0;
 	}
+
+	if ( !eof )
+		goto again;
 
 	if ( !fobuf_flush(out) )
 		return 0;
